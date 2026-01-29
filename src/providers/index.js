@@ -1,14 +1,14 @@
 "use client";
-import Footer from "@/components/footer";
-import Header from "@/components/headers";
+// import Footer from "@/components/footer";
+// import Header from "@/components/headers";
 import React, { Suspense } from "react";
 
 function Providers({ children }) {
   return (
     <Suspense>
-      <Header />
+      {/* <Header /> */}
       <div className="mt-10 md:mt-20 mb-10">{children}</div>
-      <Footer />
+      {/* <Footer /> */}
     </Suspense>
   );
 }
