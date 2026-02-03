@@ -11,10 +11,12 @@ export default async function AdminLayout({ children }) {
   const { data } = await supabase.auth.getUser();
   const user = data?.user ?? null;
 
+  console.log("",user);
+
   const isAdmin =
     user &&
-    (user.user_metadata?.role === "admin" ||
-      user.app_metadata?.roles?.includes("admin"));
+    (user?.role === "admin" ||
+      user?.role?.includes("admin"));
 
   /* ─────────────────────────────
      NOT AUTHENTICATED (LOGIN PAGE)
