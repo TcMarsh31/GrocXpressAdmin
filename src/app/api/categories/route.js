@@ -34,7 +34,7 @@ const handlePost = async (req) => {
   validator
     .string("name", { required: true, min: 1, max: 255 })
     .string("icon", { required: true, max: 500 })
-    .string("background_color", { required: true, max: 50 })
+    .string("background_color", { required: false, max: 50 })
     .string("icon_color", { required: true, max: 50 });
 
   if (!validator.isValid()) {
