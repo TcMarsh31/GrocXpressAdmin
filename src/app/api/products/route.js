@@ -42,8 +42,6 @@ const handleGet = async (req) => {
 const handlePost = async (req) => {
   const body = await req.json();
 
-  console.log("bodybodybody", body);
-
   // Validate input
   const validator = createValidator(body);
   validator
