@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import AdminSidebar from "@/components/AdminSidebar";
 
 export const revalidate = 0;
 
@@ -54,57 +55,9 @@ export default async function AdminLayout({ children }) {
   return (
     <div className="min-h-[100dvh] bg-slate-50 text-slate-900">
       <div className="flex min-h-[100dvh]">
-        {/* Sidebar */}
-        <aside className="w-64 shrink-0 border-r bg-white p-4">
-          <div className="mb-6">
-            <Link
-              href="/admin/dashboard"
-              prefetch={false}
-              className="text-lg font-semibold"
-            >
-              Admin
-            </Link>
-          </div>
+        <AdminSidebar userEmail={user.email} />
 
-          <nav className="flex flex-col gap-1 text-sm">
-            <Link
-              href="/admin/dashboard"
-              className="px-3 py-2 rounded hover:bg-slate-100"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/admin/products"
-              className="px-3 py-2 rounded hover:bg-slate-100"
-            >
-              Products
-            </Link>
-            <Link
-              href="/admin/orders"
-              className="px-3 py-2 rounded hover:bg-slate-100"
-            >
-              Orders
-            </Link>
-            <Link
-              href="/admin/categories"
-              className="px-3 py-2 rounded hover:bg-slate-100"
-            >
-              Categories
-            </Link>
-            <Link
-              href="/admin/settings"
-              className="px-3 py-2 rounded hover:bg-slate-100 text-slate-500"
-            >
-              Settings
-            </Link>
-          </nav>
-
-          <div className="mt-6 border-t pt-4 text-xs text-slate-500">
-            Signed in as {user.email}
-          </div>
-        </aside>
-
-        {/* Main content — ONLY scroll container */}
+        {/* Main content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
