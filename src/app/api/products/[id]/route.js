@@ -55,11 +55,12 @@ const handlePut = async (req, { params }) => {
 
   // Update product
   const productData = {};
-  if (body.name !== undefined) productData.name = body.name;
+  if (body.product_name !== undefined)
+    productData.product_name = body.product_name;
   if (body.description !== undefined)
     productData.description = body.description;
   if (body.price !== undefined) productData.price = body.price;
-  if (body.stock !== undefined) productData.stock = body.stock;
+  if (body.stock !== undefined) productData.unit = body.stock;
   if (body.category_id !== undefined)
     productData.category_id = body.category_id;
   if (body.image_url !== undefined) productData.image_url = body.image_url;

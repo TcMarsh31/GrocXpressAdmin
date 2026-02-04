@@ -16,15 +16,21 @@ export const errorResponse = (error, statusCode = 500) => {
   let code = "INTERNAL_ERROR";
   let details = null;
 
+  console.log("errorerrorerror", error);
+
   if (error instanceof ApiError) {
     message = error.message;
     statusCode = error.statusCode;
     code = error.code;
-  } else if (error.errors) {
+  } else if (
+    error &&
+    typeof error.getErrors === "function" &&
+    error.getErrors()
+  ) {
     message = error.message || "Validation failed";
     code = "VALIDATION_ERROR";
     statusCode = 400;
-    details = error.errors;
+    details = error.getErrors();
   } else if (error instanceof SyntaxError) {
     message = "Invalid JSON in request body";
     code = "INVALID_JSON";

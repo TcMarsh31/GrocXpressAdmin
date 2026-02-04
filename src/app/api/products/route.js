@@ -42,13 +42,15 @@ const handleGet = async (req) => {
 const handlePost = async (req) => {
   const body = await req.json();
 
+  console.log("bodybodybody", body);
+
   // Validate input
   const validator = createValidator(body);
   validator
     .string("product_name", { required: true, min: 1, max: 255 })
     .string("description", { max: 2000 })
     .number("price", { required: true, min: 0 })
-    .string("unit", { required: true, max: 50 })
+    .number("stock", { required: true, max: 50 })
     .string("category_id", { required: true })
     .string("image_url", { required: true, max: 500 })
     .string("weight", { max: 100 })
@@ -58,6 +60,7 @@ const handlePost = async (req) => {
     .string("background_color", { max: 50 });
 
   if (!validator.isValid()) {
+    console.log("Validation errors:", validator.getErrors());
     const { status, body: errorBody } = errorResponse(validator, 400);
     return NextResponse.json(errorBody, { status });
   }
@@ -67,7 +70,7 @@ const handlePost = async (req) => {
     product_name: body.product_name,
     description: body.description || null,
     price: body.price,
-    unit: body.unit,
+    unit: body.stock,
     category_id: body.category_id,
     image_url: body.image_url,
     weight: body.weight || null,
