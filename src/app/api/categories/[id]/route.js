@@ -19,7 +19,12 @@ import { ApiError } from "@/lib/api/error-handler";
 const handleGet = async (req, { params }) => {
   const { id } = await params;
 
+  console.log("IIIIIIIDDD", id);
+
   const { data, error } = await categoriesDb.getById(id);
+
+  console.log("Retrieved category data:", data);
+  console.log("Error:", error);
 
   if (error || !data) {
     const { status, body } = errorResponse(
@@ -39,10 +44,7 @@ const handlePut = async (req, { params }) => {
 
   // Validate input
   const validator = createValidator(body);
-  validator
-    .string("name", { max: 255 })
-    .string("description", { max: 1000 })
-    .string("icon", { max: 500 });
+  validator.string("name", { max: 255 }).string("icon", { max: 500 });
 
   if (!validator.isValid()) {
     const { status, body: errorBody } = errorResponse(validator, 400);
@@ -52,8 +54,7 @@ const handlePut = async (req, { params }) => {
   // Update category
   const categoryData = {};
   if (body.name !== undefined) categoryData.name = body.name;
-  if (body.description !== undefined)
-    categoryData.description = body.description;
+
   if (body.icon !== undefined) categoryData.icon = body.icon;
   categoryData.updated_at = new Date().toISOString();
 
