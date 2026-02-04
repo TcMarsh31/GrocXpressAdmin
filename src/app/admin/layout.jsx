@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const revalidate = 0;
 
@@ -10,6 +11,10 @@ export default async function AdminLayout({ children }) {
   const supabase = createClient(cookieStore);
   const { data } = await supabase.auth.getUser();
   const user = data?.user ?? null;
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const isAdmin =
     user &&

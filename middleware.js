@@ -1,96 +1,27 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
-// Lightweight middleware: if a request targets /admin and there is no
-// Supabase session cookie, redirect to /admin/login early. The server
-// layout still enforces role checks.
-export function middleware(req) {
-  const { pathname } = req.nextUrl;
+export async function middleware(req) {
+  const res = NextResponse.next();
 
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
+  const supabase = await createClient(cookies());
 
-  // -- DEV: log and detect repeated requests to /admin/login --
-  if (pathname === "/admin/login") {
-    try {
-      if (process.env.NODE_ENV !== "production") {
-        const ua = req.headers.get("user-agent") || "-";
-        const referer = req.headers.get("referer") || "-";
-        const secFetchSite = req.headers.get("sec-fetch-site") || "-";
-        const secFetchMode = req.headers.get("sec-fetch-mode") || "-";
-        const purpose = req.headers.get("purpose") || "-";
-        const xff = req.headers.get("x-forwarded-for") || "-";
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-        // keep a short-lived in-memory sliding-window of timestamps per signature
-        const sig = `${ua}|${referer}`;
-        const map =
-          globalThis.__devAdminLoginMap ||
-          (globalThis.__devAdminLoginMap = new Map());
-        const now = Date.now();
-        const windowMs = 5000; // 5s
-        const limit = 12; // requests per window allowed
-        const arr = (map.get(sig) || []).filter((t) => now - t < windowMs);
-        arr.push(now);
-        map.set(sig, arr);
+  const pathname = req.nextUrl.pathname;
 
-        console.log(
-          "[dev-middleware] /admin/login hit — sig:",
-          sig,
-          "count:",
-          arr.length,
-          "ua:",
-          ua,
-          "ref:",
-          referer,
-          "sec-fetch-site:",
-          secFetchSite,
-          "sec-fetch-mode:",
-          secFetchMode,
-          "purpose:",
-          purpose,
-          "xff:",
-          xff,
-        );
+  console.log("SSSSSSSSSSSSSSSSSSSS", session);
 
-        if (arr.length > limit) {
-          return new NextResponse(
-            JSON.stringify({
-              success: false,
-              message: "Rate limit (dev) — too many /admin/login requests",
-            }),
-            {
-              status: 429,
-              headers: {
-                "content-type": "application/json",
-                "retry-after": "5",
-              },
-            },
-          );
-        }
-      }
-    } catch (err) {
-      // best-effort logging — don't block the request on errors
-      console.warn("[dev-middleware] logging failed", err);
-    }
+  // Match /[locale]/dashboard/*
+  const isDashboardRoute = pathname.startsWith("/admin");
 
-    // allow the actual login page to render
-    return NextResponse.next();
+  if (isDashboardRoute && !session) {
+    const locale = pathname.split("/")[1];
+    return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
   }
 
-  // allow public assets & API calls under /admin
-  if (pathname.startsWith("/admin/_next") || pathname.includes("/api/")) {
-    return NextResponse.next();
-  }
-
-  const cookieNames = ["sb:token", "sb-access-token", "supabase-auth-token"];
-  const hasCookie = cookieNames.some((n) => !!req.cookies.get(n));
-  if (!hasCookie) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
+  return res;
 }
-
-export const config = {
-  matcher: ["/admin/:path*"],
-};
