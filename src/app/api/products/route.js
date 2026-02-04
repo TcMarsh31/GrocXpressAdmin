@@ -48,7 +48,7 @@ const handlePost = async (req) => {
     .string("product_name", { required: true, min: 1, max: 255 })
     .string("description", { max: 2000 })
     .number("price", { required: true, min: 0 })
-    .number("stock", { required: true, max: 50 })
+    .number("stock", { required: true, min: 0 })
     .string("category_id", { required: true })
     .string("image_url", { required: true, max: 500 })
     .string("weight", { max: 100 })
