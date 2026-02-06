@@ -29,63 +29,63 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-background p-4 transition-colors">
       <form
         onSubmit={submit}
-        className="w-full max-w-md bg-white p-6 sm:p-8 rounded shadow-sm
+        className="w-full max-w-md bg-card text-card-foreground p-6 sm:p-8 rounded-lg border border-border shadow-sm
                    max-h-[calc(100dvh-3.5rem)] overflow-y-auto"
         aria-labelledby="admin-signin-title"
       >
         <h2
           id="admin-signin-title"
-          className="text-2xl font-semibold mb-4 text-center"
+          className="text-2xl font-semibold mb-4 text-center text-foreground"
         >
           Admin sign in
         </h2>
 
         {error && (
-          <div className="mb-3 text-sm text-red-600 text-center">{error}</div>
+          <div className="mb-3 text-sm text-destructive text-center">{error}</div>
         )}
 
         <label className="block mb-3">
-          <div className="text-sm mb-1">Email</div>
+          <div className="text-sm mb-1 text-foreground">Email</div>
           <input
             autoComplete="email"
             inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded p-3 text-sm"
+            className="w-full border border-border rounded p-3 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             type="email"
             required
           />
         </label>
 
         <label className="block mb-4">
-          <div className="text-sm mb-1">Password</div>
+          <div className="text-sm mb-1 text-foreground">Password</div>
           <input
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded p-3 text-sm"
+            className="w-full border border-border rounded p-3 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             type="password"
             required
           />
         </label>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
           <button
-            className="w-full sm:w-auto bg-slate-900 text-white px-4 py-3 rounded text-sm"
+            className="w-full sm:w-auto bg-primary text-primary-foreground px-4 py-3 rounded text-sm hover:opacity-90 transition-opacity font-medium"
             disabled={loading}
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>
 
-          <a className="text-sm text-slate-500 text-center sm:text-left">
+          <a href="#" className="text-sm text-muted-foreground hover:text-foreground text-center sm:text-left transition-colors">
             Forgot?
           </a>
         </div>
 
-        <p className="mt-4 text-xs text-slate-400 text-center">
+        <p className="mt-4 text-xs text-muted-foreground text-center">
           Only admin users may sign in here.
         </p>
       </form>
