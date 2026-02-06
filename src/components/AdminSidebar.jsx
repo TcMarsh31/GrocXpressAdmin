@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LogOut } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminSidebar({ userEmail }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
 
   const nav = [
     { href: "/admin/dashboard", label: "Dashboard" },
@@ -14,7 +18,13 @@ export default function AdminSidebar({ userEmail }) {
     { href: "/admin/orders", label: "Orders" },
     { href: "/admin/categories", label: "Categories" },
     { href: "/admin/settings", label: "Settings" },
+    { href: "/admin/profile", label: "Profile" },
   ];
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground p-4 flex flex-col h-full">
@@ -47,10 +57,20 @@ export default function AdminSidebar({ userEmail }) {
       </nav>
 
       <div className="mt-6 border-t border-sidebar-border pt-4 flex items-center justify-between gap-2">
-        <div className="text-xs text-muted-foreground truncate" title={userEmail}>
+        <div className="text-xs text-muted-foreground truncate flex-1" title={userEmail}>
           Signed in as<br />{userEmail}
         </div>
-        <ThemeToggle className="h-8 w-8" />
+        <div className="flex items-center gap-1">
+          <ThemeToggle className="h-8 w-8" />
+          <button
+            onClick={handleSignOut}
+            className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border bg-sidebar-accent hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 focus:outline-none transition-colors"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="sr-only">Sign out</span>
+          </button>
+        </div>
       </div>
     </aside>
   );
