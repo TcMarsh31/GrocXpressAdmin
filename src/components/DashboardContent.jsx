@@ -22,12 +22,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTheme } from "next-themes";
 
 import ClientDate from "@/components/ClientDate";
 
 const StatCard = ({ icon: Icon, label, value, trend, color }) => (
   <div
-    className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md`}
+    className={`relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md`}
   >
     <div className="absolute -right-8 -top-8 opacity-10">
       <Icon size={120} />
@@ -37,10 +38,10 @@ const StatCard = ({ icon: Icon, label, value, trend, color }) => (
         <div className={`rounded-lg p-3 ${color}`}>
           <Icon size={24} className="text-white" />
         </div>
-        <span className="text-sm font-medium text-slate-600">{label}</span>
+        <span className="text-sm font-medium text-muted-foreground">{label}</span>
       </div>
       <div className="pt-2">
-        <div className="text-3xl font-bold text-slate-900">{value}</div>
+        <div className="text-3xl font-bold text-card-foreground">{value}</div>
         {trend && (
           <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
             <TrendingUp size={14} />
@@ -54,14 +55,14 @@ const StatCard = ({ icon: Icon, label, value, trend, color }) => (
 
 const StatusBadge = ({ status }) => {
   const statusConfig = {
-    pending: { bg: "bg-yellow-100", text: "text-yellow-700", icon: Clock },
+    pending: { bg: "bg-yellow-100 dark:bg-yellow-900/30", text: "text-yellow-700 dark:text-yellow-400", icon: Clock },
     completed: {
-      bg: "bg-green-100",
-      text: "text-green-700",
+      bg: "bg-green-100 dark:bg-green-900/30",
+      text: "text-green-700 dark:text-green-400",
       icon: CheckCircle,
     },
-    cancelled: { bg: "bg-red-100", text: "text-red-700", icon: AlertTriangle },
-    processing: { bg: "bg-blue-100", text: "text-blue-700", icon: Zap },
+    cancelled: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: AlertTriangle },
+    processing: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: Zap },
   };
 
   const config = statusConfig[status] || statusConfig.pending;
@@ -79,90 +80,98 @@ const StatusBadge = ({ status }) => {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-const RevenueChart = ({ data }) => (
-  <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div className="mb-6">
-      <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <TrendingUp size={20} className="text-green-600" />
-        Revenue Trend
-      </h3>
-      <p className="mt-1 text-sm text-slate-600">Last 7 days performance</p>
-    </div>
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data || []}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis dataKey="date" stroke="#94a3b8" />
-        <YAxis stroke="#94a3b8" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "#1e293b",
-            border: "1px solid #475569",
-            borderRadius: "8px",
-            color: "#f1f5f9",
-          }}
-          formatter={(value) => `$${value.toFixed(2)}`}
-        />
-        <Line
-          type="monotone"
-          dataKey="revenue"
-          stroke="#10b981"
-          strokeWidth={3}
-          dot={{ fill: "#10b981", r: 5 }}
-          activeDot={{ r: 7 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-);
+const RevenueChart = ({ data }) => {
+  const { theme } = useTheme();
 
-const OrderStatusChart = ({ data }) => (
-  <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div className="mb-6">
-      <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <ShoppingCart size={20} className="text-blue-600" />
-        Order Status Distribution
-      </h3>
-      <p className="mt-1 text-sm text-slate-600">All time orders by status</p>
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="mb-6">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-card-foreground">
+          <TrendingUp size={20} className="text-green-600" />
+          Revenue Trend
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">Last 7 days performance</p>
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={data || []}>
+          <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? "#333" : "#e2e8f0"} />
+          <XAxis dataKey="date" stroke="#94a3b8" />
+          <YAxis stroke="#94a3b8" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: theme === 'dark' ? "#1e293b" : "#fff",
+              border: "1px solid #475569",
+              borderRadius: "8px",
+              color: theme === 'dark' ? "#f1f5f9" : "#000",
+            }}
+            formatter={(value) => `$${value.toFixed(2)}`}
+          />
+          <Line
+            type="monotone"
+            dataKey="revenue"
+            stroke="#10b981"
+            strokeWidth={3}
+            dot={{ fill: "#10b981", r: 5 }}
+            activeDot={{ r: 7 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={data || []}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, value, percent }) =>
-            `${name}: ${(percent * 100).toFixed(0)}%`
-          }
-          outerRadius={100}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {(data || []).map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value) => `${value} orders`}
-          contentStyle={{
-            backgroundColor: "#1e293b",
-            border: "1px solid #475569",
-            borderRadius: "8px",
-            color: "#f1f5f9",
-          }}
-        />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
-);
+  );
+};
+
+const OrderStatusChart = ({ data }) => {
+  const { theme } = useTheme();
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="mb-6">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-card-foreground">
+          <ShoppingCart size={20} className="text-blue-600" />
+          Order Status Distribution
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">All time orders by status</p>
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={data || []}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, value, percent }) =>
+              `${name}: ${(percent * 100).toFixed(0)}%`
+            }
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
+          >
+            {(data || []).map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip
+            formatter={(value) => `${value} orders`}
+            contentStyle={{
+              backgroundColor: theme === 'dark' ? "#1e293b" : "#fff",
+              border: "1px solid #475569",
+              borderRadius: "8px",
+              color: theme === 'dark' ? "#f1f5f9" : "#000",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
 
 export default function DashboardContent({ stats }) {
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-slate-900">Dashboard</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+        <p className="mt-2 text-muted-foreground">
           Welcome back! Here's your business overview.
         </p>
       </div>
@@ -200,11 +209,11 @@ export default function DashboardContent({ stats }) {
       {/* Main Content Grid */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders - Takes 2 columns */}
-        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
+        <div className="lg:col-span-2 rounded-xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border px-6 py-4">
             <div className="flex items-center gap-2">
               <ShoppingCart size={20} className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-card-foreground">
                 Recent Orders
               </h2>
             </div>
@@ -212,40 +221,40 @@ export default function DashboardContent({ stats }) {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Order ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Amount
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-border">
                 {(stats.recent || []).length > 0 ? (
                   stats.recent.map((o) => (
                     <tr
                       key={o.id}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-muted/50 transition-colors"
                     >
                       <td className="px-6 py-4">
-                        <span className="font-medium text-slate-900">
+                        <span className="font-medium text-card-foreground">
                           #{o.id.slice(0, 8)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <StatusBadge status={o.status} />
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         <ClientDate iso={o.created_at} />
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold text-slate-900">
+                      <td className="px-6 py-4 text-right font-semibold text-card-foreground">
                         ${(o.total_price || 0).toFixed(2)}
                       </td>
                     </tr>
@@ -254,7 +263,7 @@ export default function DashboardContent({ stats }) {
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-6 py-8 text-center text-slate-500"
+                      className="px-6 py-8 text-center text-muted-foreground"
                     >
                       No orders yet
                     </td>
@@ -266,11 +275,11 @@ export default function DashboardContent({ stats }) {
         </div>
 
         {/* Low Stock Alert */}
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
+        <div className="rounded-xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border px-6 py-4">
             <div className="flex items-center gap-2">
               <AlertTriangle size={20} className="text-orange-600" />
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-card-foreground">
                 Low Stock Alert
               </h2>
             </div>
@@ -280,11 +289,11 @@ export default function DashboardContent({ stats }) {
               stats.lowStock.map((p) => (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-3"
+                  className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-900 p-3"
                 >
                   <div className="flex items-center gap-2">
                     <Package size={16} className="text-orange-600" />
-                    <span className="text-sm font-medium text-slate-900">
+                    <span className="text-sm font-medium text-card-foreground">
                       Product {p.id}
                     </span>
                   </div>
@@ -296,7 +305,7 @@ export default function DashboardContent({ stats }) {
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <CheckCircle size={32} className="mb-2 text-green-600" />
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   All products are well-stocked!
                 </p>
               </div>
@@ -306,14 +315,14 @@ export default function DashboardContent({ stats }) {
       </section>
 
       {/* Footer Note */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+      <div className="rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-900 p-4">
         <div className="flex items-start gap-3">
           <Zap size={20} className="mt-0.5 text-blue-600 flex-shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-900">
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
               Real-time Analytics
             </p>
-            <p className="mt-1 text-sm text-blue-700">
+            <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
               Charts update automatically based on your latest orders and
               revenue data.
             </p>

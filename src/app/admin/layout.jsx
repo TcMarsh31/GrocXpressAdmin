@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }) {
   ───────────────────────────── */
   if (!user) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 text-slate-900">
+      <div className="min-h-[100dvh] bg-background text-foreground">
         {children}
       </div>
     );
@@ -38,10 +38,10 @@ export default async function AdminLayout({ children }) {
   ───────────────────────────── */
   if (!isAdmin) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded shadow text-center max-w-md w-full">
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
+        <div className="bg-card p-8 rounded shadow text-center max-w-md w-full border border-border">
           <h2 className="text-lg font-semibold mb-2">Access denied</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Your account does not have administrator privileges.
           </p>
         </div>
@@ -53,7 +53,7 @@ export default async function AdminLayout({ children }) {
      ADMIN SHELL
   ───────────────────────────── */
   return (
-    <div className="min-h-[100dvh] bg-slate-50 text-slate-900">
+    <div className="min-h-[100dvh] bg-background text-foreground">
       <div className="flex min-h-[100dvh]">
         <AdminSidebar userEmail={user.email} />
 

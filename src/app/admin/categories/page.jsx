@@ -44,40 +44,40 @@ export default function CategoriesAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Categories</h1>
+        <h1 className="text-lg font-semibold text-foreground">Categories</h1>
         <div>
           <button
             onClick={() => {
               setEditing(null);
               setShowForm(true);
             }}
-            className="bg-slate-900 text-white px-3 py-1 rounded"
+            className="bg-primary text-primary-foreground px-3 py-1 rounded hover:opacity-90"
           >
             Add category
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded shadow-sm p-4">
+      <div className="bg-card border border-border rounded shadow-sm p-4 text-card-foreground">
         {loading ? (
-          <div>Loading…</div>
+          <div className="text-muted-foreground">Loading…</div>
         ) : (
           <ul className="space-y-2">
             {items.map((c) => (
               <li
                 key={c.id}
-                className="flex items-center justify-between border rounded p-3"
+                className="flex items-center justify-between border border-border rounded p-3 bg-card hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div
                     style={{ background: c.icon_color || "#eee" }}
-                    className="w-10 h-10 rounded flex items-center justify-center"
+                    className="w-10 h-10 rounded flex items-center justify-center text-lg shadow-sm border border-black/5"
                   >
                     {c.icon || "📦"}
                   </div>
                   <div>
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-xs text-slate-400">
+                    <div className="font-medium text-foreground">{c.name}</div>
+                    <div className="text-xs text-muted-foreground">
                       {c.description}
                     </div>
                   </div>
@@ -88,13 +88,13 @@ export default function CategoriesAdminPage() {
                       setEditing(c);
                       setShowForm(true);
                     }}
-                    className="px-2 py-1 border rounded"
+                    className="px-2 py-1 border border-border rounded text-sm hover:bg-muted"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => remove(c.id)}
-                    className="px-2 py-1 border rounded text-red-600"
+                    className="px-2 py-1 border border-border rounded text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 text-sm"
                   >
                     Delete
                   </button>
@@ -149,32 +149,32 @@ function CategoryForm({ initial = null, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-      <form onSubmit={submit} className="bg-white p-6 rounded w-[520px] shadow">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+      <form onSubmit={submit} className="bg-background text-foreground border border-border p-6 rounded w-[520px] shadow-lg">
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
+          <h3 className="text-lg font-semibold">
             {initial ? "Edit category" : "Add category"}
           </h3>
-          <button type="button" onClick={onClose} className="text-slate-500">
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             Close
           </button>
         </div>
 
         <label className="flex flex-col mb-3">
-          <span className="text-sm mb-1">Name</span>
+          <span className="text-sm mb-1 font-medium">Name</span>
           <input
             required
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="border rounded p-2"
+            className="border border-border rounded p-2 bg-background text-foreground"
           />
         </label>
         <label className="flex flex-col mb-3">
-          <span className="text-sm mb-1">Icon (emoji or class)</span>
+          <span className="text-sm mb-1 font-medium">Icon (emoji or class)</span>
           <input
             value={form.icon}
             onChange={(e) => setForm({ ...form, icon: e.target.value })}
-            className="border rounded p-2"
+            className="border border-border rounded p-2 bg-background text-foreground"
           />
         </label>
         <label className="flex items-center gap-3 mb-3">
@@ -182,22 +182,23 @@ function CategoryForm({ initial = null, onClose }) {
             type="color"
             value={form.icon_color}
             onChange={(e) => setForm({ ...form, icon_color: e.target.value })}
+            className="bg-transparent"
           />
-          <div className="text-sm text-slate-500">Pick icon color</div>
+          <div className="text-sm text-muted-foreground">Pick icon color</div>
         </label>
 
         <div className="mt-4 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-2 border rounded"
+            className="px-3 py-2 border border-border rounded hover:bg-muted"
           >
             Cancel
           </button>
           <button
             disabled={saving}
             type="submit"
-            className="px-4 py-2 bg-slate-900 text-white rounded"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:opacity-90"
           >
             {saving ? "Saving…" : "Save"}
           </button>

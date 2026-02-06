@@ -8,11 +8,11 @@ const API = "/api/orders";
 function StatusPill({ status }) {
   const color =
     status === "delivered"
-      ? "bg-emerald-100 text-emerald-700"
+      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
       : status === "shipped"
-        ? "bg-amber-100 text-amber-700"
-        : "bg-slate-100 text-slate-700";
-  return <span className={`${color} px-2 py-1 rounded text-xs`}>{status}</span>;
+        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+        : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";
+  return <span className={`${color} px-2 py-1 rounded text-xs border border-transparent dark:border-white/5`}>{status}</span>;
 }
 
 export default function OrdersAdminPage() {
@@ -66,12 +66,12 @@ export default function OrdersAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Orders</h1>
+        <h1 className="text-lg font-semibold text-foreground">Orders</h1>
         <div className="flex items-center gap-3">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border rounded px-2 py-1"
+            className="border border-border rounded px-2 py-1 bg-background text-foreground"
           >
             <option value="">All statuses</option>
             <option value="placed">placed</option>
@@ -82,9 +82,9 @@ export default function OrdersAdminPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded shadow-sm overflow-auto">
+      <div className="bg-card border border-border rounded shadow-sm overflow-auto text-card-foreground">
         <table className="w-full text-sm">
-          <thead className="text-slate-400 text-left">
+          <thead className="text-muted-foreground text-left bg-muted/50 border-b border-border">
             <tr>
               <th className="p-3">Order</th>
               <th className="p-3">Customer</th>
@@ -96,16 +96,16 @@ export default function OrdersAdminPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="p-6">
+                <td colSpan={5} className="p-6 text-muted-foreground">
                   Loading…
                 </td>
               </tr>
             ) : (
               items.map((o) => (
-                <tr key={o.id} className="border-t">
+                <tr key={o.id} className="border-t border-border hover:bg-muted/50 transition-colors">
                   <td className="p-3">
-                    #{o.id}
-                    <div className="text-xs text-slate-400">
+                    <span className="font-medium">#{o.id}</span>
+                    <div className="text-xs text-muted-foreground">
                       <ClientDate iso={o.created_at} />
                     </div>
                   </td>
@@ -113,7 +113,7 @@ export default function OrdersAdminPage() {
                   <td className="p-3">
                     <StatusPill status={o.status || "placed"} />
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3 text-right font-medium">
                     ${(o.total_price || 0).toFixed(2)}
                   </td>
                   <td className="p-3">
@@ -124,7 +124,7 @@ export default function OrdersAdminPage() {
                             order_shipped_date: new Date().toISOString(),
                           })
                         }
-                        className="text-sm px-2 py-1 border rounded"
+                        className="text-sm px-2 py-1 border border-border rounded hover:bg-muted"
                       >
                         Mark shipped
                       </button>
@@ -134,13 +134,13 @@ export default function OrdersAdminPage() {
                             order_delivered_date: new Date().toISOString(),
                           })
                         }
-                        className="text-sm px-2 py-1 border rounded"
+                        className="text-sm px-2 py-1 border border-border rounded hover:bg-muted"
                       >
                         Mark delivered
                       </button>
                       <a
                         href={`/admin/orders/${o.id}`}
-                        className="text-sm px-2 py-1 border rounded"
+                        className="text-sm px-2 py-1 border border-border rounded hover:bg-muted"
                       >
                         View
                       </a>
@@ -153,19 +153,20 @@ export default function OrdersAdminPage() {
         </table>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-500">
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
         <div>Showing {items.length} orders</div>
         <div>
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="px-2 py-1 border rounded mr-2"
+            className="px-2 py-1 border border-border rounded mr-2 bg-card text-card-foreground hover:bg-muted disabled:opacity-50"
           >
             Prev
           </button>
           <button
+            disabled={true} /* Disabled Next for now if no logic to check total pages in this view yet, but keeping style */
             onClick={() => setPage((p) => p + 1)}
-            className="px-2 py-1 border rounded"
+            className="px-2 py-1 border border-border rounded bg-card text-card-foreground hover:bg-muted disabled:opacity-50"
           >
             Next
           </button>
