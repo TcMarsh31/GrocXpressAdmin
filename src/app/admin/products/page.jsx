@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { uploadImage, createClient } from "@/lib/supabase/client";
+import { uploadImage } from "@/lib/supabase/client";
 
 const API = "/api/products";
 
@@ -42,7 +42,6 @@ export default function ProductsAdminPage() {
 
   useEffect(() => {
     fetchList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search]);
 
   async function fetchList() {
@@ -189,6 +188,8 @@ export default function ProductsAdminPage() {
 
 function ProductForm({ initial = null, onClose }) {
   const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [form, setForm] = useState({
     product_name: initial?.product_name || initial?.name || "",
     price: initial?.price || 0,
@@ -196,7 +197,25 @@ function ProductForm({ initial = null, onClose }) {
     image: null,
     image_url: initial?.image_url || "",
     stock: initial?.stock || 0,
+    weight: initial?.weight || "",
+    description: initial?.description || "",
   });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch("/api/categories");
+      const body = await res.json();
+      setCategories(body.data || []);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+    } finally {
+      setLoadingCategories(false);
+    }
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -213,6 +232,8 @@ function ProductForm({ initial = null, onClose }) {
         category_id: form.category_id,
         image_url: imageUrl,
         stock: Number(form.stock),
+        weight: form.weight || null,
+        description: form.description || null,
       };
 
       const method = initial ? "PUT" : "POST";
@@ -232,95 +253,132 @@ function ProductForm({ initial = null, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-      <form onSubmit={submit} className="bg-white p-6 rounded w-[720px] shadow">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4">
+      <form onSubmit={submit} className="bg-white rounded w-[720px] shadow flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
+          <h3 className="text-lg font-semibold">
             {initial ? "Edit product" : "Add product"}
           </h3>
-          <button type="button" onClick={onClose} className="text-slate-500">
+          <button type="button" onClick={onClose} className="text-slate-500 hover:text-slate-700">
             Close
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Name</span>
-            <input
-              required
-              value={form.product_name}
-              onChange={(e) =>
-                setForm({ ...form, product_name: e.target.value })
-              }
-              className="border rounded p-2"
-            />
-          </label>
-
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Price</span>
-            <input
-              required
-              type="number"
-              step="0.01"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="border rounded p-2"
-            />
-          </label>
-
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Category ID</span>
-            <input
-              value={form.category_id}
-              onChange={(e) =>
-                setForm({ ...form, category_id: e.target.value })
-              }
-              className="border rounded p-2"
-            />
-          </label>
-
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Stock</span>
-            <input
-              type="number"
-              value={form.stock}
-              onChange={(e) => setForm({ ...form, stock: e.target.value })}
-              className="border rounded p-2"
-            />
-          </label>
-
-          <label className="flex flex-col col-span-2">
-            <span className="text-sm mb-1">Image</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] })}
-            />
-            {form.image_url && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={form.image_url}
-                className="w-28 h-28 object-cover mt-2 rounded"
-                alt=""
+        <div className="overflow-y-auto flex-1 p-6">
+          <div className="grid grid-cols-2 gap-4">
+            <label className="flex flex-col">
+              <span className="text-sm mb-1 font-medium">Name</span>
+              <input
+                required
+                value={form.product_name}
+                onChange={(e) =>
+                  setForm({ ...form, product_name: e.target.value })
+                }
+                className="border rounded p-2"
               />
-            )}
-          </label>
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm mb-1 font-medium">Price</span>
+              <input
+                required
+                type="number"
+                step="0.01"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                className="border rounded p-2"
+              />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm mb-1 font-medium">Category</span>
+              <select
+                required
+                value={form.category_id}
+                onChange={(e) =>
+                  setForm({ ...form, category_id: e.target.value })
+                }
+                className="border rounded p-2"
+              >
+                <option value="">Select a category</option>
+                {loadingCategories ? (
+                  <option disabled>Loading categories...</option>
+                ) : (
+                  categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm mb-1 font-medium">Weight</span>
+              <input
+                value={form.weight}
+                onChange={(e) => setForm({ ...form, weight: e.target.value })}
+                className="border rounded p-2"
+                placeholder="e.g., 500g, 1kg"
+              />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm mb-1 font-medium">Stock</span>
+              <input
+                type="number"
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                className="border rounded p-2"
+              />
+            </label>
+
+            <label className="flex flex-col col-span-2">
+              <span className="text-sm mb-1 font-medium">Description</span>
+              <textarea
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                className="border rounded p-2"
+                rows="3"
+                placeholder="Enter product description..."
+              />
+            </label>
+
+            <label className="flex flex-col col-span-2">
+              <span className="text-sm mb-1 font-medium">Image</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setForm({ ...form, image: e.target.files?.[0] })}
+              />
+              {form.image_url && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={form.image_url}
+                  className="w-28 h-28 object-cover mt-2 rounded"
+                  alt=""
+                />
+              )}
+            </label>
+          </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-end gap-3">
+        <div className="border-t p-6 flex items-center justify-end gap-3 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-2 border rounded"
+            className="px-3 py-2 border rounded hover:bg-slate-50"
           >
             Cancel
           </button>
           <button
             disabled={saving}
             type="submit"
-            className="px-4 py-2 bg-slate-900 text-white rounded"
+            className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
